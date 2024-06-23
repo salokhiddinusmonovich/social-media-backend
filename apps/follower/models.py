@@ -11,4 +11,4 @@ class Follow(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.following.username} -> {self.follower.username}'
+        return f'{self.following.name} -> {self.follower.name}'

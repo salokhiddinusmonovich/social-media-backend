@@ -8,9 +8,8 @@ User = get_user_model()
 
 class Tag(models.Model):
     name = models.CharField(max_length=20)
-    slug = models.SlugField(max_length=20, unique=True)
 
-    def str(self):
+    def __str__(self):
         return self.name
 
 
@@ -22,7 +21,7 @@ class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     likes = models.IntegerField(default=0)
 
-    def str(self):
+    def __str__(self):
         return self.caption
 
 
@@ -36,8 +35,8 @@ class LikedPost(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
 
-    def str(self):
-        return f'{self.user.username}: {self.post.title}'
+    def __str__(self):
+        return f'{self.user.username}'
 
 
 class Comment(models.Model):
@@ -48,7 +47,7 @@ class Comment(models.Model):
     id = models.CharField(max_length=100, default=uuid.uuid4, unique=True, primary_key=True, editable=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='children', null=True, blank=True)
 
-    def str(self):
+    def __str__(self):
         try:
             return f'{self.author.username} : {self.body[:30]}'
         except:
@@ -63,5 +62,5 @@ class LikedComment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
 
-    def str(self):
+    def __str__(self):
         return f'{self.user.username}: {self.comment.body[:30]}'

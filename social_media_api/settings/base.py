@@ -41,7 +41,9 @@ INSTALLED_APPS = [
 
 
 THIRD_APPS = [
-    'rest_framework'
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'drf_yasg',
 ]
 
 LOCAL_APPS = [
