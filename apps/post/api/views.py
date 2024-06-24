@@ -1,11 +1,12 @@
 from rest_framework.generics import CreateAPIView, UpdateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import parsers
+from rest_framework import parsers, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.post.models import Post, Tag, LikedPost
-from .serializers import PostCreateSerializer, PostUpdateSerializer, PostListSerializer, LikedPostSerializer
+from apps.post.models import Post, Tag, LikedPost, Comment
+from .serializers import PostCreateSerializer, PostUpdateSerializer, PostListSerializer, LikedPostSerializer, \
+    CommentSerializer, CommentCreateSerializer, CommentUpdateSerializer
 from .permissions import IsOwner
 
 class PostCreateAPIView(CreateAPIView):
@@ -63,3 +64,44 @@ class LikePostAPIView(APIView):
 
 
 liked_post = LikePostAPIView.as_view()
+
+
+
+class CommentListAPIView(ListAPIView):
+    serializer_class = CommentSerializer
+    queryset = Comment.objects.all()
+
+
+comment_list = CommentListAPIView.as_view()
+
+
+class CommentCreateAPIView(generics.CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentCreateSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+comment_create =  CommentCreateAPIView.as_view()
+
+class CommentUpdateAPIView(generics.UpdateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentUpdateSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def perform_update(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+comment_update =  CommentUpdateSerializer.as_view()
+
+
+class CommentDeleteAPIView(generics.DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentCreateSerializer
+    permission_classes = (IsAuthenticated, )
+
+
+comment_delete =  CommentDeleteAPIView.as_view()

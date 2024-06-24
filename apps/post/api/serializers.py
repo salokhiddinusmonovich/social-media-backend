@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from apps.post.models import Post, Tag, PostImage, LikedPost
+from apps.post.models import Post, Tag, PostImage, LikedPost, Comment
 
 User = get_user_model()
 
@@ -70,3 +70,32 @@ class LikedPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = LikedPost
         fields = ['pk', 'user']
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    post_id = serializers.IntegerField(source="post.id", read_only=True)
+    author_username = serializers.CharField(source="author.username", read_only=True)
+    commented_at = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ("id", "author_username", "post_id", "body", "commented_at")
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    post_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['post_id', 'body']
+
+    def create(self, validated_data):
+        post_id = validated_data.pop('post_id')
+        post = Post.objects.get(id=post_id)
+        comment = Comment.objects.create(post=post, **validated_data)
+        return comment
+
+
+class CommentUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['body']
