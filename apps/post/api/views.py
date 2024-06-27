@@ -1,13 +1,22 @@
-from rest_framework.generics import CreateAPIView, UpdateAPIView, ListAPIView
+
+from rest_framework.generics import (CreateAPIView,
+                                     UpdateAPIView,
+                                     ListAPIView,
+                                     RetrieveAPIView)
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import parsers, generics
+from rest_framework import parsers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.post.models import Post, Tag, LikedPost, Comment
-from .serializers import PostCreateSerializer, PostUpdateSerializer, PostListSerializer, LikedPostSerializer, \
-    CommentSerializer, CommentCreateSerializer, CommentUpdateSerializer
+from .serializers import (PostCreateSerializer,
+                          PostUpdateSerializer,
+                          PostListSerializer,
+                          LikePostSerializer,
+                          CommentCreateSerializer,
+                          PostDetailSerializer)
 from .permissions import IsOwner
+
 
 class PostCreateAPIView(CreateAPIView):
     serializer_class = PostCreateSerializer
@@ -16,11 +25,11 @@ class PostCreateAPIView(CreateAPIView):
     parser_classes = (parsers.MultiPartParser, parsers.FileUploadParser, parsers.JSONParser)
 
     def perform_create(self, serializer):
+        # print(self.request.data)
         serializer.save(user=self.request.user)
 
 
 post_create = PostCreateAPIView.as_view()
-
 
 
 class PostUpdateAPIView(UpdateAPIView):
@@ -47,14 +56,14 @@ class PostListAPIView(ListAPIView):
 post_list = PostListAPIView.as_view()
 
 
-
 class LikePostAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
         post_id = request.data.get('id')
         post = Post.objects.get(id=post_id)
         like = LikedPost.objects.filter(post=post,
-                                     user=request.user).exists()
+                                        user=request.user).exists()
         if not like:
             LikedPost.objects.create(user=request.user, post=post)
 
@@ -66,42 +75,23 @@ class LikePostAPIView(APIView):
 liked_post = LikePostAPIView.as_view()
 
 
-
-class CommentListAPIView(ListAPIView):
-    serializer_class = CommentSerializer
-    queryset = Comment.objects.all()
-
-
-comment_list = CommentListAPIView.as_view()
-
-
-class CommentCreateAPIView(generics.CreateAPIView):
-    queryset = Comment.objects.all()
+class CommentCreateAPIView(CreateAPIView):
     serializer_class = CommentCreateSerializer
-    permission_classes = (IsAuthenticated, )
+    queryset = Comment.objects.all()
+    permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
 
-comment_create =  CommentCreateAPIView.as_view()
-
-class CommentUpdateAPIView(generics.UpdateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentUpdateSerializer
-    permission_classes = (IsAuthenticated, )
-
-    def perform_update(self, serializer):
-        serializer.save(author=self.request.user)
+comment_create = CommentCreateAPIView.as_view()
 
 
-comment_update =  CommentUpdateSerializer.as_view()
+class PostDetailAPIView(RetrieveAPIView):
+    serializer_class = PostDetailSerializer
+    queryset = Post.objects.all().prefetch_related('comments__children')
+
+    lookup_field = 'id'
 
 
-class CommentDeleteAPIView(generics.DestroyAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentCreateSerializer
-    permission_classes = (IsAuthenticated, )
-
-
-comment_delete =  CommentDeleteAPIView.as_view()
+post_detail = PostDetailAPIView.as_view()
