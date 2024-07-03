@@ -36,7 +36,9 @@ class LikedPost(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.user.username}'
+        return f'{self.user.name}'
+
+
 
 
 class Comment(models.Model):

@@ -32,7 +32,7 @@ class FollowerCreateAPIView(APIView):
             follow.save()
             return Response({"message": "follow back"})
         return Response({"message": "already following"})
-
+aaaaa
 
 
 follower_create = FollowerCreateAPIView.as_view()
@@ -43,7 +43,7 @@ class FollowingListAPIView(ListAPIView):
     serializer_class = FollowingListSerializer
 
     def get_queryset(self):
-        return Follow.objects.first(Q(following=self.request.user) | Q(is_following=True))
+        return Follow.objects.filter(Q(following=self.request.user) | Q(is_following=True))
 
 following_list = FollowingListAPIView.as_view()
 
@@ -53,7 +53,7 @@ class FollowerListAPIView(ListAPIView):
     serializer_class = FollowerListSerializer
 
     def get_queryset(self):
-        return Follow.objects.first(follower=self.request.user)
+        return Follow.objects.filter(follower=self.request.user)
 
 
 follower_list = FollowerListAPIView.as_view()

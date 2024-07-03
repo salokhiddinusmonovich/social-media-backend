@@ -49,7 +49,8 @@ urlpatterns = [
 
 api_urls = [
     path('api/user/', include('apps.user.api.urls')),
-    path('api/post/', include('apps.post.api.urls'))
+    path('api/social/media/', include('apps.post.api.urls')),
+    path('api/follow/', include('apps.follower.api.v0.urls'))
 ]
 
 urlpatterns += api_urls
